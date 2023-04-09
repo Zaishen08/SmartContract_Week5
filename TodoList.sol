@@ -7,24 +7,25 @@ contract TodoList {
         bool completed;
     }
 
-    Task[] public tasks;
-    uint public taskCount;
+    mapping(address => Task[]) private tasks;
 
     function create(string memory _name) public {
         require(bytes(_name).length > 0, "Task name cannot be empty.");
-        tasks.push(Task(_name, false));
-        taskCount++;
+        tasks[msg.sender].push(Task(_name, false));
     }
 
     function update(uint _index, bool _completed) public {
-        require(_index < taskCount || _index > taskCount, "Invalid task index.");
-        tasks[_index].completed = _completed;
+        require(_index < tasks[msg.sender].length, "Invalid task index.");
+        tasks[msg.sender][_index].completed = _completed;
     }
 
     function get(uint _index) public view returns (string memory, bool) {
-        require(_index < taskCount || _index > taskCount, "Invalid task index.");
-        Task memory task = tasks[_index];
-        return (task.name, task.completed);
+        require(_index < tasks[msg.sender].length, "Invalid task index.");
+        Task memory task = tasks[msg.sender][_index];
+         return (
+            task.name,
+            task.completed
+        );
     }
 
     function kill() public {
